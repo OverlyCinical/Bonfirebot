@@ -1,0 +1,2 @@
+# Bonfirebot
+Personal Discord bot
