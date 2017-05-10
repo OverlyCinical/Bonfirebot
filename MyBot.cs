@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Commands;
 
 using System;
@@ -58,6 +58,7 @@ namespace ConsoleApplication1
 
             RegisterYouDiedCommand();
             RegisterSmugCommand();
+            RegisterKindleCommand();
             RegisterJoinRoleCommand();
 
             discord.ExecuteAndWait(async () =>
@@ -89,6 +90,19 @@ namespace ConsoleApplication1
                     string imageToPost = smugPic[randomInt];
                     await e.Channel.SendFile(imageToPost);
             });
+        }
+
+        private void RegisterKindleCommand()
+        {
+            int counter = 6;
+
+            commands.CreateCommand("kindle")
+            .Do(async (e) =>
+            {
+                counter ++;
+                await e.Channel.SendMessage("``` You kindled the Bonfire...\n  kindled " + counter + " times.```");
+            });
+
         }
 
         private void RegisterJoinRoleCommand()
