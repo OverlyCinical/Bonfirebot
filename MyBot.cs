@@ -53,13 +53,26 @@ namespace ConsoleApplication1
                 x.AllowMentionPrefix = true;
             });
 
+            discord.UserJoined += async (s, e)=>
+            {
+                var role = e.Server.GetRole(303348412034711554);
+                await e.User.AddRoles(role);
+            };
             
             commands = discord.GetService<CommandService>();
+
+            commands.CreateCommand("say").Parameter("message", ParameterType.Multiple)
+            .Do(async (e) =>
+            {
+                await SendMessage(e);
+            });
 
             RegisterYouDiedCommand();
             RegisterSmugCommand();
             RegisterKindleCommand();
             RegisterJoinRoleCommand();
+
+            
 
             discord.ExecuteAndWait(async () =>
             {
@@ -105,8 +118,10 @@ namespace ConsoleApplication1
 
         }
 
+
         private void RegisterJoinRoleCommand()
         {
+
             ///Bad Argument
             commands.CreateCommand("jc")
                 .Do(async (e) =>
@@ -205,6 +220,49 @@ namespace ConsoleApplication1
                     await e.User.RemoveRoles(role);
                 });
 
+        }
+
+        private async Task SendMessage(CommandEventArgs e)
+        {
+            var channel = e.Server.FindChannels(e.Args[0], ChannelType.Text).FirstOrDefault();
+
+            var message = ConstructMessage(e, channel != null);
+
+            var userRoles = e.User.Roles;
+
+            if (channel == null)
+            {
+                await e.Channel.SendMessage("```" + message + "```");
+            }
+            else if (userRoles.Any(discord => discord.Name.ToUpper() == "FIREKEEPER"))
+            {
+                if (channel != null)
+                {
+                    await channel.SendMessage("```" + message + "```");
+                }
+
+            }
+            else
+            {
+                await e.Channel.SendMessage("```You do not have permission to use this command...```");
+            }
+        }
+
+        private string ConstructMessage(CommandEventArgs e, bool firstArgIsChannel)
+        {
+            string message = "";
+
+            var name = e.User.Nickname != null ? e.User.Nickname : e.User.Name;
+
+            var startIndex = firstArgIsChannel ? 1 : 0;
+
+            for(int i = startIndex; i < e.Args.Length; i++)
+            {
+                message += e.Args[i].ToString() + " ";
+            }
+
+            var result = name + " says: " + message;
+            return result;
         }
 
         private void Log(object sender, LogMessageEventArgs e)
