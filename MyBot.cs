@@ -21,14 +21,14 @@ namespace ConsoleApplication1
         string[] youDiedGifs = Directory.GetFiles(@"C:\Users\Wade\Documents\Visual Studio 2015\Projects\ConsoleApplication1\ConsoleApplication1\YouDied");
         string[] smugPic = Directory.GetFiles(@"C:\Users\Wade\Documents\Visual Studio 2015\Projects\ConsoleApplication1\ConsoleApplication1\smug");
 
-        string[] testStr;
+        string[] gameList;
 
         public MyBot()
         {
             rand = new Random();
 
 
-            testStr = new string[]
+            gameList = new string[]
             {
                 "overwatch",
                 "dontstarve",
@@ -67,6 +67,12 @@ namespace ConsoleApplication1
                 await SendMessage(e);
             });
 
+            commands.CreateCommand("agc").Parameter("channel", ParameterType.Multiple)
+            .Do(async (e) =>
+            {
+                await AddGameChannel(e);
+            });
+
             RegisterYouDiedCommand();
             RegisterSmugCommand();
             RegisterKindleCommand();
@@ -77,7 +83,6 @@ namespace ConsoleApplication1
             discord.ExecuteAndWait(async () =>
             {
                 await discord.Connect("MzA0NzcxNTIyODQ4MDk2MjU2.C9rjSw.S8UU0MRgiu1HWOt2lR6e7DocAlg", TokenType.Bot);
-                discord.SetGame("Dark Souls");
             });
         }
 
@@ -99,7 +104,6 @@ namespace ConsoleApplication1
             commands.CreateCommand("smug")
             .Do(async (e) =>
             {
-                    //await e.Channel.SendMessage("pong");
                     int randomInt = rand.Next(smugPic.Length);
                     string imageToPost = smugPic[randomInt];
                     await e.Channel.SendFile(imageToPost);
@@ -264,6 +268,25 @@ namespace ConsoleApplication1
 
             var result = name + " says: " + message;
             return result;
+        }
+
+        private async Task AddGameChannel(CommandEventArgs e)
+        {
+            var userRoles = e.User.Roles;
+            if (userRoles.Any(discord => discord.Name.ToUpper() == "FIREKEEPER"))
+            {
+                var channel = e.Server.FindChannels("botchan", ChannelType.Text).FirstOrDefault();
+                string game = "";
+                for (int i = 0; i < e.Args.Length; i++)
+                {
+                    game += e.Args[i].ToString() + " ";
+                }
+                await channel.SendMessage("test" + e.Args);
+            }
+            else
+            {
+                await e.Channel.SendMessage("```You do not have permission to use this command...```");
+            }
         }
 
         private void Log(object sender, LogMessageEventArgs e)
