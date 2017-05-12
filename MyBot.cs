@@ -77,6 +77,7 @@ namespace ConsoleApplication1
             discord.ExecuteAndWait(async () =>
             {
                 await discord.Connect("MzA0NzcxNTIyODQ4MDk2MjU2.C9rjSw.S8UU0MRgiu1HWOt2lR6e7DocAlg", TokenType.Bot);
+                discord.SetGame("Dark Souls");
             });
         }
 
